@@ -1,0 +1,276 @@
+
+<!DOCTYPE html>
+<html lang="en-us">
+
+<head>
+<meta charset="utf-8">
+<title>Trips-traps-trull</title>
+<style>
+#mainContent {
+  position: absolute;
+  background-color: #D3D3D3;
+  border-radius: 4px;
+  border: 2px solid #000000;
+  padding: 5px;
+  width: 300px;
+  height: 420px;
+  overflow: hidden;
+}
+.background {
+  position: absolute;
+  margin-left: 0px;
+  margin-top: 0px;
+}
+
+.buttons {
+  position: absolute;
+  margin: 0 0 0 0;
+  border: 1px solid #000000;
+  color: #000000;
+  background-color: #808080;
+  cursor: pointer;
+  font-family: "Arial Black", Gadget, sans-serif;
+}
+
+.xo {
+  width: 100px;
+  height: 100px;
+  font-size: 45px;
+  line-height: 35px;
+  border-radius: 4px;
+}
+
+#newgame {
+  width: 300px;
+  height: 40px;
+  margin: 370px 0 0 0;
+  font-size: 25px;
+  line-height: 15px;
+  border-radius: 4px;
+  border-style: inset;
+  border: 1px solid #000000;
+}
+
+#result {
+  position: absolute;
+  width: 300px;
+  margin: 15px 0 0 0;
+  text-align: center;
+  font-family: "Arial Black", Gadget, sans-serif;
+  color:#000000;
+  font-size: 25px;
+  line-height: 15px;
+}
+
+#winner {
+  position: absolute;
+  width: 300px;
+  height: 300px;
+  left: 13px;
+  top: 63px;
+  visibility: hidden;
+}
+
+</style>
+</head>
+
+<body>
+
+  <div id="mainContent">
+
+    <p id="result"></p>
+
+    <input id="1" type="button" class="buttons xo" style="margin: 50px 0 0 0;" value=" ">
+    <input id="2" type="button" class="buttons xo" style="margin: 50px 0 0 100px;" value=" ">
+    <input id="3" type="button" class="buttons xo" style="margin: 50px 0 0 200px;" value=" ">
+    <input id="4" type="button" class="buttons xo" style="margin: 150px 0 0 0;" value=" ">
+    <input id="5" type="button" class="buttons xo" style="margin: 150px 0 0 100px;" value=" ">
+    <input id="6" type="button" class="buttons xo" style="margin: 150px 0 0 200px;" value=" ">
+    <input id="7" type="button" class="buttons xo" style="margin: 250px 0 0 0;" value=" ">
+    <input id="8" type="button" class="buttons xo" style="margin: 250px 0 0 100px;" value=" ">
+    <input id="9" type="button" class="buttons xo" style="margin: 250px 0 0 200px;" value=" ">
+
+    <input id="newgame" type="button" class="buttons" value="Alusta mängu">
+
+  </div>
+
+  <canvas id="winner"></canvas>
+
+
+  <script>
+    "use strict";
+
+    var x = [0, 0, 0, 0, 0, 0, 0, 0, 0];
+    var clickCounter = 0;
+    var gameOver = false;
+
+    var buttons = document.getElementsByClassName("xo");
+    for (var i = 0; i < buttons.length; i++) {
+      buttons[i].addEventListener("click", clickButton, false);
+    }
+
+    document.getElementById("newgame").addEventListener("click", function() {
+      var buttons = document.getElementsByClassName("xo");
+      for (var i = 0; i < buttons.length; i++) {
+        buttons[i].value = " ";
+        buttons[i].disabled = false;
+      }
+      document.getElementById("result").textContent = "";
+      x.fill(0);
+      clickCounter = 0;
+      gameOver = false;
+      document.getElementById("winner").style.visibility = "hidden";
+      var canvas = document.getElementById("winner");
+      var ctx = canvas.getContext("2d");
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+    }, false);
+
+
+    function clickButton(ev) {
+      var button = ev.target;
+      var moveO;
+      button.value = "X";
+      button.disabled = true;
+      clickCounter++;
+      x[button.id -1] = 1;
+
+      if (hasWon(1)){
+        document.getElementById("result").textContent = "Kasutaja võitis";
+      } else {
+        if (clickCounter > 8) {
+          document.getElementById("result").textContent = "Viik";
+        } else {      
+          moveO=computerMove();
+          buttons[moveO].value = "O";
+          buttons[moveO].disabled = true;
+          clickCounter++;
+          x[moveO] = 2;
+
+          if (hasWon(2)){
+            document.getElementById("result").textContent = "Arvuti võitis";
+          }
+        }
+      }
+    }
+
+
+    function computerMove() {
+
+      // 0 1 2
+      if ((x[0] != 0 ) && ( x[0] == x[1] ) && ( x[2] == 0 ))  { return 2; }
+      if ((x[0] != 0 ) && ( x[0] == x[2] ) && ( x[1] == 0 ))  { return 1; }
+      if ((x[1] != 0 ) && ( x[1] == x[2] ) && ( x[0] == 0 ))  { return 0; }
+
+      // 3 4 5 
+      if ((x[3] != 0 ) && ( x[3] == x[4] ) && ( x[5] == 0 ))  { return 5; }
+      if ((x[3] != 0 ) && ( x[3] == x[5] ) && ( x[4] == 0 ))  { return 4; }
+      if ((x[4] != 0 ) && ( x[4] == x[5] ) && ( x[3] == 0 ))  { return 3; }
+
+      // 6 7 8 
+      if ((x[6] != 0 ) && ( x[6] == x[7] ) && ( x[8] == 0 ))  { return 8; }
+      if ((x[6] != 0 ) && ( x[6] == x[8] ) && ( x[7] == 0 ))  { return 7; }
+      if ((x[7] != 0 ) && ( x[7] == x[8] ) && ( x[6] == 0 ))  { return 6; }
+
+
+      // 0 3 6
+      if ((x[0] != 0 ) && ( x[0] == x[3] ) && ( x[6] == 0 ))  { return 6; }
+      if ((x[0] != 0 ) && ( x[0] == x[6] ) && ( x[3] == 0 ))  { return 3; }
+      if ((x[3] != 0 ) && ( x[3] == x[6] ) && ( x[0] == 0 ))  { return 0; }
+
+      // 1 4 7
+      if ((x[1] != 0 ) && ( x[1] == x[4] ) && ( x[7] == 0 ))  { return 7; }
+      if ((x[1] != 0 ) && ( x[1] == x[7] ) && ( x[4] == 0 ))  { return 4; }
+      if ((x[4] != 0 ) && ( x[4] == x[7] ) && ( x[1] == 0 ))  { return 1; }
+
+      // 2 5 8
+      if ((x[2] != 0 ) && ( x[2] == x[5] ) && ( x[8] == 0 ))  { return 8; }
+      if ((x[2] != 0 ) && ( x[2] == x[8] ) && ( x[5] == 0 ))  { return 5; }
+      if ((x[5] != 0 ) && ( x[5] == x[8] ) && ( x[2] == 0 ))  { return 2; }
+
+
+      // 0 4 8
+      if ((x[0] != 0 ) && ( x[0] == x[4] ) && ( x[8] == 0 ))  { return 8; }
+      if ((x[0] != 0 ) && ( x[0] == x[8] ) && ( x[4] == 0 ))  { return 4; }
+      if ((x[4] != 0 ) && ( x[4] == x[8] ) && ( x[0] == 0 ))  { return 0; }
+
+      // 2 4 6
+      if ((x[2] != 0 ) && ( x[2] == x[4] ) && ( x[6] == 0 ))  { return 6; }
+      if ((x[2] != 0 ) && ( x[2] == x[6] ) && ( x[4] == 0 ))  { return 4; }
+      if ((x[4] != 0 ) && ( x[4] == x[6] ) && ( x[2] == 0 ))  { return 2; }
+
+
+      for (var i = 0; i < x.length; i++) {
+        if (x[i]==0){
+          return i;
+        }
+      }
+
+    }
+
+
+    function hasWon(p) {
+
+      if ((x[0] == p ) && ( x[1] == p ) && ( x[2] == p))  { drawWinnerLine("r1"); return true; }
+      if ((x[3] == p ) && ( x[4] == p ) && ( x[5] == p))  { drawWinnerLine("r2"); return true; }
+      if ((x[6] == p ) && ( x[7] == p ) && ( x[8] == p))  { drawWinnerLine("r3"); return true; }
+
+      if ((x[0] == p ) && ( x[3] == p ) && ( x[6] == p))  { drawWinnerLine("c1"); return true; }
+      if ((x[1] == p ) && ( x[4] == p ) && ( x[7] == p))  { drawWinnerLine("c2"); return true; }
+      if ((x[2] == p ) && ( x[5] == p ) && ( x[8] == p))  { drawWinnerLine("c3"); return true; }
+
+      if ((x[0] == p ) && ( x[4] == p ) && ( x[8] == p))  { drawWinnerLine("d1"); return true; }
+      if ((x[2] == p ) && ( x[4] == p ) && ( x[6] == p))  { drawWinnerLine("d2"); return true; }
+
+      return false;
+    }
+
+
+    function drawWinnerLine(lineType) {
+      var canvas = document.getElementById("winner");
+      var ctx = canvas.getContext("2d");
+      ctx.beginPath();
+
+      switch (true) {
+        case (lineType == "r1"):
+          ctx.moveTo(0,25);
+          ctx.lineTo(300,25);
+          break;
+        case (lineType == "r2"):
+          ctx.moveTo(0,75);
+          ctx.lineTo(300,75);
+          break;
+        case (lineType == "r3"):
+          ctx.moveTo(0,125);
+          ctx.lineTo(300,125);
+          break;
+        case (lineType == "c1"):
+          ctx.moveTo(50,0);
+          ctx.lineTo(50,150);
+          break;
+        case (lineType == "c2"):
+          ctx.moveTo(150,0);
+          ctx.lineTo(150,150);
+          break;
+        case (lineType == "c3"):
+          ctx.moveTo(250,0);
+          ctx.lineTo(250,150);
+          break;
+        case (lineType == "d1"):
+          ctx.moveTo(0,0);
+          ctx.lineTo(300,150);
+          break;
+        case (lineType == "d2"):
+          ctx.moveTo(300,0);
+          ctx.lineTo(0,150);
+          break;
+      }
+
+      ctx.stroke();
+      document.getElementById("winner").style.visibility = "visible";
+
+    }
+
+  </script>
+
+</body>
+</html>
